@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>白龟的小红书日记</title>
+    <style>
+        *{margin: 0;padding: 0;box-sizing: border-box;}
+        body{
+            font-family:"苹方",思源雅黑,宋体;
+            background-color: #f6f5f3;
+            background-attachment:fixed;
+            color:#444444;
+            line-height:1.75;
+        }
+        .main{
+            max-width:830px;
+            margin:0 auto;
+            background:rgba(255,255,255,0.72);
+            backdrop-filter: blur(10px);
+            min-height:100vh;
+            padding:32px 28px;
+        }
+        h2{
+            text-align:center;
+            color:#697974;
+            font-size:28px;
+            letter-spacing:2px;
+            font-weight:500;
+            padding-bottom:18px;
+            border-bottom:1px solid #d8ddd9;
+        }
+        .tips{
+            text-align:center;
+            color:#949e9a;
+            margin:14px 0 28px;
+            font-size:14px;
+        }
+        .nav{
+            display:flex;
+            gap:14px;
+            flex-wrap:wrap;
+            margin-bottom:32px;
+        }
+        .nav button{
+            flex:1;
+            padding:12px;
+            background:#e8edea;
+            border:none;
+            color:#5a6762;
+            border-radius:30px;
+            font-size:15px;
+            cursor:pointer;
+            transition:0.35s ease;
+        }
+        .nav button.active{
+            background:#7c8c86;
+            color:#ffffff;
+            box-shadow: 0 3px 10px rgba(124,140,134,0.25);
+        }
+        .box{display: none;}
+        input,textarea{
+            width:100%;
+            background:#ffffff;
+            border:1px solid #e2e6e3;
+            padding:14px 16px;
+            margin:9px 0;
+            border-radius:12px;
+            color:#505854;
+            font-size:14px;
+            transition:0.3s;
+            outline:none;
+        }
+        input:focus,textarea:focus{
+            border-color:#879791;
+        }
+        .save-btn{
+            width:100%;
+            padding:12px;
+            background:#879791;
+            border:none;
+            color:white;
+            font-size:15px;
+            border-radius:12px;
+            margin:7px 0 18px;
+            letter-spacing:1px;
+            cursor:pointer;
+            transition:0.3s;
+        }
+        .save-btn:hover{
+            background:#70807a;
+        }
+        .item{
+            padding:18px;
+            background:#ffffff;
+            margin:14px 0;
+            border-radius:14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .time{
+            color:#b0b9b4;
+            font-size:13px;
+            margin-bottom:8px;
+        }
+        img{
+            border-radius:10px;
+        }
+    </style>
+</head>
+<body>
+<div class="main">
+    <h2>白龟的小红书日记</h2>
+    <div class="tips">收纳岁岁碎片｜珍藏所有温柔过往</div>
+
+    <div class="nav">
+        <button class="active" onclick="cut('article')">文案存档</button>
+        <button onclick="cut('photo')">相片珍藏</button>
+        <button onclick="cut('diary')">生活日记</button>
+    </div>
+
+    <!--文案专区 存放全部小红书文案-->
+    <div id="article" class="box" style="display:block;">
+        <input id="artTitle" placeholder="填写文案标题">
+        <textarea id="artText" rows="7" placeholder="把小红书所有文案、随笔、心情语录、个人感悟全部粘贴留存"></textarea>
+        <button class="save-btn" onclick="addArticle()">永久保存文案</button>
+        <div id="artList"></div>
+    </div>
+
+    <!--图片相册 收纳全部小红书照片-->
+    <div id="photo" class="box">
+        <input id="imgUrl" placeholder="复制图片链接粘贴即可保存相片">
+        <button class="save-btn" onclick="addImg()">收录照片</button>
+        <div id="imgList"></div>
+    </div>
+
+    <!--个人生活日记板块-->
+    <div id="diary" class="box">
+        <textarea id="dayText" rows="8" placeholder="记录日常点滴、心绪感想、往后生活碎片全部留存于此"></textarea>
+        <button class="save-btn" onclick="addDay()">保存日记</button>
+        <div id="dayList"></div>
+    </div>
+
+</div>
+
+<script>
+function cut(id){
+    document.querySelectorAll('.box').forEach(e=>e.style.display='none')
+    document.getElementById(id).style.display='block'
+    document.querySelectorAll('.nav button').forEach(e=>e.classList.remove('active'))
+    event.target.classList.add('active')
+}
+
+//文案储存
+function addArticle(){
+    let t=artTitle.value.trim(),c=artText.value.trim()
+    if(!t||!c)return
+    let arr=JSON.parse(localStorage.getItem('noteArticle')||'[]')
+    arr.unshift({t,c,time:new Date().toLocaleString()})
+    localStorage.setItem('noteArticle',JSON.stringify(arr))
+    artTitle.value=''
+    artText.value=''
+    showArt()
+}
+function showArt(){
+    let html=''
+    JSON.parse(localStorage.getItem('noteArticle')||'[]').forEach(v=>{
+        html+=`<div class="item"><div class="time">${v.time}</div><strong style="color:#616e69">${v.t}</strong><p style="margin-top:8px;color:#555">${v.c}</p ></div>`
+    })
+    artList.innerHTML=html
+}
+
+//相册储存
+function addImg(){
+    let u=imgUrl.value.trim()
+    if(!u)return
+    let arr=JSON.parse(localStorage.getItem('noteImage')||'[]')
+    arr.unshift({u,time:new Date().toLocaleString()})
+    localStorage.setItem('noteImage',JSON.stringify(arr))
+    imgUrl.value=''
+    showImg()
+}
+function showImg(){
+    let html=''
+    JSON.parse(localStorage.getItem('noteImage')||'[]').forEach(v=>{
+        html+=`<div class="item"><div class="time">${v.time}</div>< img src="${v.u}" style="width:100%;border-radius:10px;margin-top:10px;"></div>`
+    })
+    imgList.innerHTML=html
+}
+
+//日记储存
+function addDay(){
+    let c=dayText.value.trim()
+    if(!c)return
+    let arr=JSON.parse(localStorage.getItem('noteDiary')||'[]')
+    arr.unshift({c,time:new Date().toLocaleString()})
+    localStorage.setItem('noteDiary',JSON.stringify(arr))
+    dayText.value=''
+    showDay()
+}
+function showDay(){
+    let html=''
+    JSON.parse(localStorage.getItem('noteDiary')||'[]').forEach(v=>{
+        html+=`<div class="item"><div class="time">${v.time}</div><p style="color:#555">${v.c}</p ></div>`
+    })
+    dayList.innerHTML=html
+}
+
+showArt(),showImg(),showDay()
+</script>
+</body>
+</html>
